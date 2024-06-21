@@ -1,0 +1,28 @@
+{
+    "name": "viannalucas/sicoob-php",
+    "description": "SDKpara Api Sicoob em PHP",
+    "type": "library",
+    "license": "MIT",
+    "config": {
+        "platform": {
+            "php": "8.2"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "viannaLucas\\SicoobPhp\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "viannaLucas\\SicoobPhp\\Test\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Lucas Vianna",
+            "email": "vianna_lsv@hotmail.com"
+        }
+    ],
+    "require": {}
+}
