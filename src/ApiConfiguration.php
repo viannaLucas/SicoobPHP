@@ -5,6 +5,7 @@ namespace viannaLucas\SicoobPhp;
 class ApiConfiguration
 {
     public const BASE_URL = 'https://api.sicoob.com.br/';
+    public const BASE_URL_COBRANCA_BANCARIA = 'https://api.sicoob.com.br/cobranca-bancaria/v3';
     public const AUTH_URL = 'https://auth.sicoob.com.br/auth/realms/cooperado/protocol/openid-connect/token';
     
     /**

@@ -64,15 +64,53 @@ class ApiSicoob
         return new Response($httpCode, $curlReply);
     }
     
+    /**
+     * 
+     * @param string $url
+     * @param array<mixed> $data The data to be sent in the request body as JSON
+     * @return Response
+     * @throws Exception
+     */
+    public function postRequest(string $url, array $data): Response
+    {
+        $httpHeaders = [
+            'Authorization: Bearer ' . $this->oAuth->getToken()->getAccessToken(),
+            'Content-Type: application/json',
+            'accept: application/json', // Assuming API accepts and responds with JSON
+        ];
+
+        // The BASE_URL should not be prepended here if it's already part of the $url in ApiCobrancaBancaria
+        // However, if $url is a relative path, it should be prepended.
+        // For now, let's assume $url will be the full path or relative to a base already handled by the caller.
+        // If $url is like "/boletos", then ApiConfiguration::BASE_URL_COBRANCA_BANCARIA should be prepended by the caller.
+
+        $curl = $this->createCurl();
+        curl_setopt($curl, CURLOPT_URL, $url); // Use $url directly
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $httpHeaders);
+
+        $curlReply = (string) curl_exec($curl);
+        $curlError = curl_error($curl);
+        if ($curlError !== '') {
+            throw new Exception("Curl error: " . $curlError);
+        }
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        return new Response($httpCode, $curlReply);
+    }
+
     protected function validateResponse(Response $response): object
     {
-        if ($response->getHttpCode() != 200) {
-            throw new Exception('Error request. Http Error Code: ' . $response->getHttpCode());
+        // Adjusted to allow 200, 201 (Created), 202 (Accepted) for successful POST/PUT etc.
+        if ($response->getHttpCode() < 200 || $response->getHttpCode() >= 300) {
+            throw new Exception('Error request. Http Error Code: ' . $response->getHttpCode() . ' Body: ' . $response->getBody());
         }
         $objResp = json_decode($response->getBody());
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (json_last_error() !== JSON_ERROR_NONE && !empty(trim($response->getBody()))) { // Check if body is not empty before erroring on JSON
             throw new Exception('Invalid response json format');
         }
-        return $objResp;
+        return $objResp ?? new \stdClass(); // Return empty stdClass if body was empty
     }
 }
